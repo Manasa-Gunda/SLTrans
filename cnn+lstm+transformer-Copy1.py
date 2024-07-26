@@ -102,9 +102,6 @@ x = MaxPooling1D(pool_size=2)(x)
 x = Conv1D(filters=256, kernel_size=3, activation='relu',kernel_regularizer=regularizer, bias_regularizer=regularizer)(x)
 x = MaxPooling1D(pool_size=2)(x)
 
-# Add LSTM layer
-x = LSTM(128, return_sequences=True,kernel_regularizer=regularizer, bias_regularizer=regularizer)(x)
-x = Flatten()(x)
 
 # Add dense and dropout layers
 x = Dense(64, activation='relu',kernel_regularizer=regularizer, bias_regularizer=regularizer)(x)
@@ -153,10 +150,7 @@ transformer_block_2 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff
 transformer_block_3 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff=dff,kernel_regularizer=regularizer, bias_regularizer=regularizer)
 transformer_block_4 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff=dff,kernel_regularizer=regularizer, bias_regularizer=regularizer)
 
-x = transformer_block_1(x)
-x = transformer_block_2(x)
-x = transformer_block_3(x)
-x = transformer_block_4(x)
+
 
 
 # In[64]:
@@ -168,10 +162,6 @@ transformer_block_2 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff
 transformer_block_3 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff=dff)
 #transformer_block_4 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff=dff)
 
-x1 = transformer_block_1(x1)
-x1 = transformer_block_2(x1)
-x1 = transformer_block_3(x1)
-#x1 = transformer_block_4(x1)
 
 
 # In[11]:
