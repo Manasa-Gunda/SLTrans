@@ -83,9 +83,7 @@ x = MaxPooling1D(pool_size=2)(x)
 x = Conv1D(filters=256, kernel_size=3, activation='relu',kernel_regularizer=regularizer, bias_regularizer=regularizer)(x)
 x = MaxPooling1D(pool_size=2)(x)
 
-# Add LSTM layer
-x = SimpleRNN(128, return_sequences=True,kernel_regularizer=regularizer, bias_regularizer=regularizer)(x)
-x = Flatten()(x)
+
 
 # Add dense and dropout layers
 x = Dense(64, activation='relu',kernel_regularizer=regularizer, bias_regularizer=regularizer)(x)
@@ -102,68 +100,6 @@ model.summary()
 # In[7]:
 
 
-#new
-class TransformerBlock(tf.keras.layers.Layer):
-    def __init__(self, d_model, num_heads, dff, rate=0.5, kernel_regularizer=None, bias_regularizer=None):
-        super(TransformerBlock, self).__init__()
-
-        self.multi_head_attention1 = layers.MultiHeadAttention(d_model, num_heads,
-                                                       kernel_regularizer=regularizer,bias_regularizer=regularizer)
-        self.layernorm1 = layers.LayerNormalization(epsilon=1e-6)
-
-        self.simplernn = layers.SimpleRNN(d_model, return_sequences=True,
-                         kernel_regularizer=regularizer,bias_regularizer=regularizer)
-
-        self.dropout1 = layers.Dropout(rate)
-        self.dense1 = layers.Dense(dff, activation='relu',
-                            kernel_regularizer=regularizer,bias_regularizer=regularizer)
-        self.dense2 =layers.Dense(d_model,
-                            kernel_regularizer=regularizer,bias_regularizer=regularizer)
-
-        self.dropout2 = layers.Dropout(rate)
-        self.layernorm2 = layers.LayerNormalization(epsilon=1e-6)
-                                             
-
-    def call(self, inputs, training=False):
-        # Apply multi-head attention and add residual connection
-        inputs = tf.keras.layers.Reshape((7, 3))(inputs)
-        attn_output = self.multi_head_attention1(inputs, inputs, inputs)
-        attn_output = self.dropout1(attn_output, training=training)
-        out1 = self.layernorm1(inputs + attn_output)
-
-        simplernn_output = self.simplernn(out1)
-        #lstm_output = self.dropout1(lstm_output, training=training)
-        out2 = self.layernorm1(out1 + simplernn_output)  # modify addition
-        
-        simplernn_output1 = self.simplernn(out2)
-        #lstm_output1 = self.dropout1(lstm_output1, training=training)
-        out21 = self.layernorm1(out2 + simplernn_output1)  # modify addition
-        
-   
-        # Apply feedforward network and add residual connection
-        ff_output = self.dense1(out21)
-        ff_output = self.dense2(ff_output)
-        ff_output = self.dropout2(ff_output, training=training)
-        #ff_output = self.lstm(ff_output)
-        out3 = self.layernorm2(out21 + ff_output)
-        
-        return out3
-
-
-# In[8]:
-
-
-class TokenAndPositionEmbedding(layers.Layer):
-    def __init__(self, maxlen, d_model):
-        super(TokenAndPositionEmbedding, self).__init__()
-        self.pos_emb = layers.Embedding(input_dim=maxlen, output_dim=d_model)
-
-    def call(self, x):
-        positions = tf.range(start=0, limit=maxlen, delta=1)
-        positions = self.pos_emb(positions)
-        x = tf.reshape(x, [-1, maxlen, d_model])
-        out = x + positions
-        return out
 
 
 # In[9]:
@@ -197,10 +133,6 @@ transformer_block_2 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff
 transformer_block_3 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff=dff,kernel_regularizer=regularizer, bias_regularizer=regularizer)
 transformer_block_4 = TransformerBlock(d_model=d_model, num_heads=num_heads, dff=dff,kernel_regularizer=regularizer, bias_regularizer=regularizer)
 
-x = transformer_block_1(x)
-x = transformer_block_2(x)
-x = transformer_block_3(x)
-x = transformer_block_4(x)
 
 
 # In[13]:
